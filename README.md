@@ -55,15 +55,32 @@ docker run -it -p 8080:8080 --cap-add SYS_ADMIN --name bot-render-container bot-
 
 Send a request to the server running inside the container:
 ```bash
-curl http://localhost:8080/?url=https://dynamic-meta.appspot.com
+curl -X GET "http://localhost:8080/?url={urlToDump}&dom={document|body|head}"
+```
+Examples:
+
+```bash
+# To dump head dom (Default)
+curl -X GET "http://localhost:8080/?url=https://dynamic-meta.appspot.com&dom=head"
+ 
+# To dump body dom
+curl -X GET "http://localhost:8080/?url=https://dynamic-meta.appspot.com&dom=body"
+ 
+# To dump document dom
+curl -X GET "http://localhost:8080/?url=https://dynamic-meta.appspot.com&dom=document"
 ```
 
 Stop the container:
 ```bash
-docker kill bot-render-container
+docker stop bot-render-container
 ```
 
-Clear containers:
+Remove the container:
+```bash
+docker rm bot-render-container
+```
+
+Clear all containers:
 ```bash
 docker rm -f $(docker ps -a -q)
 ```

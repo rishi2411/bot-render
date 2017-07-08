@@ -7,7 +7,7 @@ class Renderer {
     this._url = url;
   }
 
-  extractHead() {
+  extractDOM(htmlElement) {
     return new Promise((resolve, reject) => {
       CDP.New().then((tab) => {
         return CDP({tab: tab});
@@ -31,10 +31,11 @@ class Renderer {
             Page.navigate({url: this._url});
           });
 
-          // Load and dump DOM of head element.
+          // Load and dump DOM of {head(default)|body|document} element.
           Page.loadEventFired(() => {
             setTimeout(async() => {
-              let result = await Runtime.evaluate({expression: 'document.head.outerHTML'});
+              let expression = htmlElement == 'document'? 'document.documentElement.outerHTML' : (htmlElement == 'body' ? 'document.body.outerHTML' : 'document.head.outerHTML');
+              let result = await Runtime.evaluate({expression: expression});
               CDP.Close({id: client.tab.id});
               resolve(result.result.value);
             }, 1500);
