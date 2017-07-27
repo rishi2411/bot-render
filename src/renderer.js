@@ -2,6 +2,25 @@
 
 const CDP = require('chrome-remote-interface');
 
+var getExpression = function(htmlElement){
+    let stripScripts =
+        'function stripScripts(n) {' +
+          'var scripts = n.getElementsByTagName("script");' +
+          'var i = scripts.length;' +
+          'while (i--) {' +
+            'scripts[i].parentNode.removeChild(scripts[i]);' +
+          '}' +
+          'return n;' +
+        '};';
+    if (htmlElement == 'document'){
+        return stripScripts + 'stripScripts(document.documentElement).outerHTML';
+    } else if (htmlElement == 'body'){
+        return stripScripts + 'stripScripts(document.body).outerHTML';
+    } else {
+        return stripScripts + 'stripScripts(document.head).outerHTML';
+    }
+}
+
 class Renderer {
   constructor(url) {
     this._url = url;
@@ -34,8 +53,7 @@ class Renderer {
           // Load and dump DOM of {head(default)|body|document} element.
           Page.loadEventFired(() => {
             setTimeout(async() => {
-              let expression = htmlElement == 'document'? 'document.documentElement.outerHTML' : (htmlElement == 'body' ? 'document.body.outerHTML' : 'document.head.outerHTML');
-              let result = await Runtime.evaluate({expression: expression});
+              let result = await Runtime.evaluate({expression: getExpression(htmlElement)});
               CDP.Close({id: client.tab.id});
               resolve(result.result.value);
             }, 1500);
