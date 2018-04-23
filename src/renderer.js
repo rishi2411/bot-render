@@ -8,7 +8,9 @@ var getExpression = function(htmlElement){
           'var scripts = n.getElementsByTagName("script");' +
           'var i = scripts.length;' +
           'while (i--) {' +
-            'scripts[i].parentNode.removeChild(scripts[i]);' +
+            'if (scripts[i] && scripts[i].type !== "application/ld+json") {' +
+              'scripts[i].parentNode.removeChild(scripts[i]);' +
+            '}' +
           '}' +
           'return n;' +
         '};';
